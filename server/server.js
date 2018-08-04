@@ -1,5 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const _ = require('lodash');
 
 const {mongoose} = require('./db/mongoose');
 const {user} = require('./models/users');
@@ -39,7 +40,25 @@ app.delete('/todos',function(req,res){
     },function(err){
         console.log('error:',err);
     });
-})
+});
+
+app.patch('/todos',function(req,res){
+    var body = _.pick(req.body,['text','completed']);
+
+    todo.findOneAndUpdate({
+        text:'todoo'
+    },{
+        completed:false,
+        completedAt:1
+    }).then(function(todo){
+        console.log(todo);
+        res.send(todo);
+        
+    },function(err){
+        console.log('err');
+        res.send('err');
+    });
+});
 
 app.listen(port,function(){
     console.log(`started app on port ${port}`);
