@@ -31,6 +31,16 @@ app.get('/todos',function(req,res){
    });
 });
 
+app.delete('/todos',function(req,res){
+    todo.findOneAndRemove({
+        text:'todoo'
+    }).then(function(){
+        console.log('');
+    },function(err){
+        console.log('error:',err);
+    });
+})
+
 app.listen(port,function(){
     console.log(`started app on port ${port}`);
 })
