@@ -3,8 +3,8 @@ const bodyParser = require('body-parser');
 const _ = require('lodash');
 
 const {mongoose} = require('./db/mongoose');
-const {user} = require('./models/users');
-const {todo} = require('./models/todos');
+const {User} = require('./models/users.js');
+const {Todo} = require('./models/todos');
 
 var port = process.env.PORT || 3000;
 
@@ -13,19 +13,19 @@ var app = express();
 app.use(bodyParser.json());
 
 app.post('/todos',function(req,res){
-    var t1 = new todo({
+    var t1 = new Todo({
         text:req.body.text
     });
     
-    t1.save().then(function(result){
-        res.send(result);
+    t1.save().then(function(todo){
+        res.send(todo);
     },function(err){
         res.status(400).send(err);
     });
 });
 
 app.get('/todos',function(req,res){
-   todo.find().then(function(todos){
+   Todo.find().then(function(todos){
         res.send(todos);
    },function(err){
         res.send(err);
@@ -33,7 +33,7 @@ app.get('/todos',function(req,res){
 });
 
 app.delete('/todos',function(req,res){
-    todo.findOneAndRemove({
+    Todo.findOneAndRemove({
         text:'todoo'
     }).then(function(){
         console.log('');
@@ -45,7 +45,7 @@ app.delete('/todos',function(req,res){
 app.patch('/todos',function(req,res){
     var body = _.pick(req.body,['text','completed']);
 
-    todo.findOneAndUpdate({
+    Todo.findOneAndUpdate({
         text:'todoo'
     },{
         completed:false,
@@ -58,6 +58,30 @@ app.patch('/todos',function(req,res){
         console.log('err');
         res.send('err');
     });
+});
+
+app.post('/users',function(req,res){
+    var body = _.pick(req.body,['email','password']);
+    var user = new User(body);
+    
+    user.save().then(() =>{
+        return user.generateAuthToken();
+    }).then((token)=>{ //user
+       // console.log(`token: ${user.tokens[0].token}, user: ${user}`);
+        //res.header('x-auth',user.tokens[0].token).send(user.toJSON());
+        res.header('x-auth',token).send(user);
+    }).
+     catch((e)=>{
+        res.status(400).send(e);
+    })
+});
+
+app.get('/users',function(req,res){
+    users.find().then(function(u){
+        res.send(u);
+    },function(e){
+        res.send('error',e);
+    }); 
 });
 
 app.listen(port,function(){
